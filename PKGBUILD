@@ -7,7 +7,7 @@ pkgdesc="This is the Unified Launcher for Windows Games on Linux, to run Proton 
 arch=('x86_64')
 url="https://github.com/Open-Wine-Components/umu-launcher"
 license=('GPL-3.0-only')
-source=("https://github.com/Open-Wine-Components/umu-launcher.git")
+source=("git+https://github.com/Open-Wine-Components/umu-launcher.git")
 sha256sums=('SKIP')
 depends=(
   bash
