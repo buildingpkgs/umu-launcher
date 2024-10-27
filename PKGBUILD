@@ -10,7 +10,9 @@ license=('GPL-3.0-only')
 source=("git+https://github.com/Open-Wine-Components/umu-launcher.git")
 sha256sums=('SKIP')
 depends=(
-  bash
+  python
+  python-xlib
+  python-filelock
 )
 makedepends=(
   git
