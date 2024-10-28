@@ -13,6 +13,8 @@ depends=(
   python
   python-xlib
   python-filelock
+  lib32-vulkan-driver
+  lib32-opengl-driver
 )
 makedepends=(
   git
