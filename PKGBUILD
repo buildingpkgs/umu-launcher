@@ -22,6 +22,7 @@ makedepends=(
   python-build
   python-installer
   python-hatchling
+  python-pip
 )
 
 prepare() {
