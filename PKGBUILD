@@ -23,6 +23,7 @@ makedepends=(
   python-installer
   python-hatchling
   python-pip
+  python-pyzstd
 )
 
 prepare() {
