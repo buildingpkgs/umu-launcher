@@ -3,7 +3,7 @@
 pkgname=umu-launcher
 pkgver=1.2.6
 pkgrel=1
-pkgdesc="This is the Unified Launcher for Windows Games on Linux, to run Proton with fixes outside of Steam"
+pkgdesc="The Unified Launcher for Windows Games on Linux, to run Proton with fixes outside of Steam"
 arch=('x86_64')
 url="https://github.com/Open-Wine-Components/umu-launcher"
 license=('GPL-3.0-only')
@@ -15,6 +15,8 @@ depends=(
   python-filelock
   lib32-vulkan-driver
   lib32-opengl-driver
+  python-pyzstd
+  python-urllib3
 )
 makedepends=(
   git
@@ -23,7 +25,6 @@ makedepends=(
   python-installer
   python-hatchling
   python-pip
-  python-pyzstd
 )
 
 prepare() {
@@ -32,7 +33,7 @@ prepare() {
 
 build() {
   cd "$srcdir"/umu-launcher
-  ./configure.sh --prefix=/usr
+  ./configure.sh --prefix=/usr --use-system-pyzstd --use-system-urllib
   make
 }
 
