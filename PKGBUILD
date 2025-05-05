@@ -12,11 +12,13 @@ sha256sums=('SKIP')
 depends=(
   python
   python-xlib
-  python-filelock
   lib32-vulkan-driver
   lib32-opengl-driver
   python-pyzstd
   python-urllib3
+  python-cbor2
+  python-xxhash
+  python-truststore
 )
 makedepends=(
   git
@@ -25,14 +27,18 @@ makedepends=(
   python-installer
   python-hatchling
   python-pip
+  cargo
 )
 
 prepare() {
   cd "$srcdir"/umu-launcher
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 
 build() {
   cd "$srcdir"/umu-launcher
+  export RUSTUP_TOOLCHAIN=stable
   ./configure.sh --prefix=/usr --use-system-pyzstd --use-system-urllib
   make
 }
