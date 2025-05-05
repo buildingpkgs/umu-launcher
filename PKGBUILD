@@ -8,6 +8,7 @@ arch=('x86_64')
 url="https://github.com/Open-Wine-Components/umu-launcher"
 license=('GPL-3.0-only')
 source=("git+https://github.com/Open-Wine-Components/umu-launcher.git")
+options=(!debug)
 sha256sums=('SKIP')
 depends=(
   python
