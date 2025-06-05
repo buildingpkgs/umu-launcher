@@ -13,8 +13,6 @@ sha256sums=('SKIP')
 depends=(
   python
   python-xlib
-  lib32-vulkan-driver
-  lib32-opengl-driver
   python-pyzstd
   python-urllib3
   python-cbor2
@@ -29,6 +27,10 @@ makedepends=(
   python-hatchling
   python-pip
   cargo
+)
+optdepends=(
+  lib32-vulkan-driver
+  lib32-opengl-driver
 )
 
 prepare() {
