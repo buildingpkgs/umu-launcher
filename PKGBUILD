@@ -29,8 +29,8 @@ makedepends=(
   cargo
 )
 optdepends=(
-  lib32-vulkan-driver
-  lib32-opengl-driver
+  "lib32-vulkan-driver: 32-bit support for dxvk"
+  "lib32-opengl-driver: 32-bit support for wined3d"
 )
 
 prepare() {
