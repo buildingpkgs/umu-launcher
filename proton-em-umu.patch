@@ -46,7 +46,7 @@ index edca37b..4cc8797 100644
 -        if release["name"].endswith("tar.gz") and release["name"].startswith(
 -            ("UMU-Proton", "GE-Proton")
 +        if release["name"].endswith(("tar.gz", "tar.xz")) and release["name"].startswith(
-+            ("Proton-EM", "UMU-Proton", "GE-Proton")
++            ("proton-EM", "UMU-Proton", "GE-Proton")
          ):
              proton_asset = (release["name"], release["browser_download_url"])
              asset_count += 1
@@ -77,7 +77,19 @@ index edca37b..4cc8797 100644
      version: str = ProtonVersion.UMU.value
      lock: str = f"{UMU_LOCAL}/{FileLock.Compat.value}"
      latest_candidates: set[str]
-@@ -396,7 +401,7 @@ def _get_latest(
+@@ -380,7 +385,10 @@ def _get_latest(
+         return None
+ 
+     tarball = assets[1][0]
+-    proton = tarball.removesuffix(".tar.gz")
++    if tarball.endswith(".tar.gz")
++        proton = tarball.removesuffix(".tar.gz")
++    else:
++        proton = tarball.removesuffix(".tar.xz")
+     latest_candidates = {
+         ProtonVersion.GELatest.value,
+         ProtonVersion.UMULatest.value,
+@@ -396,7 +404,7 @@ def _get_latest(
          env["PROTONPATH"] = os.environ["PROTONPATH"]
          return env
  
@@ -86,7 +98,7 @@ index edca37b..4cc8797 100644
      try:
          log.debug("Acquiring file lock '%s'...", lock)
          with unix_flock(lock):
-@@ -438,7 +443,7 @@ def _install_proton(
+@@ -438,7 +446,7 @@ def _install_proton(
      """Install a Proton directory to Steam's compatibilitytools.d.
  
      An installation is primarily composed of two steps: extract and move. A
@@ -95,7 +107,7 @@ index edca37b..4cc8797 100644
      directory then moved to compatibilitytools.d, which is expected to be in
      $HOME.
      """
-@@ -495,7 +500,9 @@ def _get_delta(
+@@ -495,7 +503,9 @@ def _get_delta(
  ) -> dict[str, str] | None:
      thread_pool, _ = session_pools
      version: str = (
@@ -106,7 +118,7 @@ index edca37b..4cc8797 100644
      )
      proton: Path = umu_compat.joinpath(version)
      lock: str = f"{UMU_LOCAL}/{FileLock.Compat.value}"
-@@ -578,7 +585,7 @@ def _get_delta(
+@@ -578,7 +588,7 @@ def _get_delta(
          # Apply the patch
          for content in cbor["contents"]:
              src: str = content["source"]
