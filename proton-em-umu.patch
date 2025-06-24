@@ -82,7 +82,7 @@ index edca37b..4cc8797 100644
  
      tarball = assets[1][0]
 -    proton = tarball.removesuffix(".tar.gz")
-+    if tarball.endswith(".tar.gz")
++    if tarball.endswith(".tar.gz"):
 +        proton = tarball.removesuffix(".tar.gz")
 +    else:
 +        proton = tarball.removesuffix(".tar.xz")
