@@ -1,0 +1,155 @@
+diff --git a/umu/umu_proton.py b/umu/umu_proton.py
+index edca37b..4cc8797 100644
+--- a/umu/umu_proton.py
++++ b/umu/umu_proton.py
+@@ -46,6 +46,7 @@ SessionCaches = tuple[Path, Path]
+ class ProtonVersion(Enum):
+     """Represent valid version keywords for Proton."""
+ 
++    EM = "Proton-EM"
+     GE = "GE-Proton"
+     UMU = "UMU-Proton"
+     GELatest = "GE-Latest"
+@@ -55,14 +56,14 @@ class ProtonVersion(Enum):
+ def get_umu_proton(env: dict[str, str], session_pools: SessionPools) -> dict[str, str]:
+     """Attempt to use the latest Proton when configured.
+ 
+-    When $PROTONPATH is not set or $PROTONPATH is 'GE-Proton', the launcher
+-    will make a request to Github for the latest UMU-Proton or GE-Proton build
++    When $PROTONPATH is not set or $PROTONPATH is 'GE-Proton' or 'Proton-EM', the launcher
++    will make a request to Github for the latest UMU-Proton, GE-Proton or Proton-EM build
+     and attempt to use it if not already installed in '$HOME/.local/share/Steam
+     /compatibilitytools.d'.
+ 
+     Protons installed in system paths will not be searched. When the user's
+     network is unreachable, the launcher will fallback to using the latest
+-    version of UMU-Proton or GE-Proton installed.
++    version of UMU-Proton, GE-Proton or Proton-EM installed.
+     """
+     # Subset of Github release assets from the Github API (ver. 2022-11-28)
+     # First element is the digest asset, second is the Proton asset. Each asset
+@@ -163,6 +164,10 @@ def _fetch_releases(
+         ProtonVersion.GELatest.value,
+     }:
+         repo = "/repos/GloriousEggroll/proton-ge-custom/releases/latest"
++    elif os.environ.get("PROTONPATH") in {
++        ProtonVersion.EM.value,
++    }:
++        repo = "/repos/Etaash-mathamsetty/Proton/releases/latest"
+ 
+     resp = http_pool.request(HTTPMethod.GET.value, f"{url}{repo}", headers=headers)
+     if resp.status != HTTPStatus.OK:
+@@ -178,7 +183,7 @@ def _fetch_releases(
+             asset_count += 1
+             continue
+         if release["name"].endswith("tar.gz") and release["name"].startswith(
+-            ("UMU-Proton", "GE-Proton")
++            ("Proton-EM", "UMU-Proton", "GE-Proton")
+         ):
+             proton_asset = (release["name"], release["browser_download_url"])
+             asset_count += 1
+@@ -200,7 +205,7 @@ def _fetch_proton(
+     assets: tuple[tuple[str, str], tuple[str, str]],
+     session_pools: SessionPools,
+ ) -> dict[str, str]:
+-    """Download the latest UMU-Proton or GE-Proton."""
++    """Download the latest Proton-EM, UMU-Proton or GE-Proton."""
+     resp: BaseHTTPResponse
+     tmpfs, cache = session_caches
+     _, http_pool = session_pools
+@@ -356,7 +361,7 @@ def _get_latest(
+ ) -> dict[str, str] | None:
+     """Download the latest Proton for new installs.
+ 
+-    Either GE-Proton or UMU-Proton will be downloaded if they do not exist.
++    GE-Proton, UMU-Proton or Proton-EM will be downloaded if they do not exist.
+     Depending on the codename, the installation path for those builds will
+     be different.
+ 
+@@ -371,7 +376,7 @@ def _get_latest(
+     tarball: str
+     # Name of the Proton directory (e.g., GE-Proton9-7)
+     proton: str
+-    # Name of the Proton version, which is either UMU-Proton or GE-Proton
++    # Name of the Proton version, which is UMU-Proton, GE-Proton or Proton-EM
+     version: str = ProtonVersion.UMU.value
+     lock: str = f"{UMU_LOCAL}/{FileLock.Compat.value}"
+     latest_candidates: set[str]
+@@ -396,7 +401,7 @@ def _get_latest(
+         env["PROTONPATH"] = os.environ["PROTONPATH"]
+         return env
+ 
+-    # Use the latest UMU/GE-Proton
++    # Use the latest UMU/GE-Proton or Proton-EM
+     try:
+         log.debug("Acquiring file lock '%s'...", lock)
+         with unix_flock(lock):
+@@ -438,7 +443,7 @@ def _install_proton(
+     """Install a Proton directory to Steam's compatibilitytools.d.
+ 
+     An installation is primarily composed of two steps: extract and move. A
+-    UMU-Proton or GE-Proton build will first be extracted to a secure temporary
++    UMU-Proton, GE-Proton or Proton-EM build will first be extracted to a secure temporary
+     directory then moved to compatibilitytools.d, which is expected to be in
+     $HOME.
+     """
+@@ -495,7 +500,9 @@ def _get_delta(
+ ) -> dict[str, str] | None:
+     thread_pool, _ = session_pools
+     version: str = (
+-        "GE-Latest" if os.environ.get("PROTONPATH") == "GE-Latest" else "UMU-Latest"
++        "GE-Latest" if os.environ.get("PROTONPATH") == "GE-Latest"
++        else "Proton-EM" if os.environ.get("PROTONPATH") == "Proton-EM" else "UMU-Latest"
++
+     )
+     proton: Path = umu_compat.joinpath(version)
+     lock: str = f"{UMU_LOCAL}/{FileLock.Compat.value}"
+@@ -578,7 +585,7 @@ def _get_delta(
+         # Apply the patch
+         for content in cbor["contents"]:
+             src: str = content["source"]
+-            if src.startswith((ProtonVersion.GE.value, ProtonVersion.UMU.value)):
++            if src.startswith((ProtonVersion.GE.value, ProtonVersion.UMU.value, ProtonVersion.EM.value)):
+                 patchers.append(_apply_delta(proton, content, thread_pool))
+                 continue
+             subdir: Path | None = next(umu_compat.joinpath(version).rglob(src), None)
+diff --git a/./umu-launcher-orig/umu/umu_run.py b/./umu-launcher/umu/umu_run.py
+index 1dca04e..ed3c6a6 100755
+--- a/umu/umu_run.py
++++ b/umu/umu_run.py
+@@ -136,7 +136,7 @@ def check_env(
+         os.environ["PROTONPATH"] = str(STEAM_COMPAT.joinpath(os.environ["PROTONPATH"]))
+ 
+     # Proton Codename
+-    if os.environ.get("PROTONPATH") in {"GE-Proton", "GE-Latest", "UMU-Latest"}:
++    if os.environ.get("PROTONPATH") in {"Proton-EM", "GE-Proton", "GE-Latest", "UMU-Latest"}:
+         get_umu_proton(env, session_pools)
+ 
+     if "PROTONPATH" not in os.environ:
+@@ -149,7 +149,7 @@ def check_env(
+     if not os.environ["PROTONPATH"]:
+         err: str = (
+             "Environment variable not set or is empty: PROTONPATH\n"
+-            f"Possible reason: GE-Proton or UMU-Proton not found in '{STEAM_COMPAT}'"
++            f"Possible reason: EM-Proton, GE-Proton or UMU-Proton not found in '{STEAM_COMPAT}'"
+             " or network error"
+         )
+         raise FileNotFoundError(err)
+@@ -188,7 +188,7 @@ def set_env(
+         env["EXE"] = ""
+         env["STEAM_COMPAT_INSTALL_PATH"] = ""
+     elif is_winetricks:
+-        # Make an absolute path to winetricks within GE-Proton or UMU-Proton.
++        # Make an absolute path to winetricks within Proton-EM, GE-Proton or UMU-Proton.
+         # The launcher will change to the winetricks parent directory before
+         # creating the subprocess
+         exe: Path = Path(protonpath, "protonfixes", "winetricks").resolve(strict=True)
+@@ -683,7 +683,7 @@ def resolve_umu_version(runtimes: tuple[RuntimeVersion, ...]) -> RuntimeVersion
+         return runtimes[0]
+ 
+     # Default to latest runtime for codenames
+-    if os.environ.get("PROTONPATH") in {"GE-Proton", "GE-Latest", "UMU-Latest"}:
++    if os.environ.get("PROTONPATH") in {"Proton-EM", "GE-Proton", "GE-Latest", "UMU-Latest"}:
+         log.debug("PROTONPATH is codename, defaulting to '%s'", runtimes[0][1])
+         return runtimes[0]
+ 
