@@ -39,11 +39,13 @@ index edca37b..4cc8797 100644
  
      resp = http_pool.request(HTTPMethod.GET.value, f"{url}{repo}", headers=headers)
      if resp.status != HTTPStatus.OK:
-@@ -178,7 +183,7 @@ def _fetch_releases(
+@@ -177,8 +182,8 @@ def _fetch_releases(
+             digest_asset = (release["name"], release["browser_download_url"])
              asset_count += 1
              continue
-         if release["name"].endswith("tar.gz") and release["name"].startswith(
+-        if release["name"].endswith("tar.gz") and release["name"].startswith(
 -            ("UMU-Proton", "GE-Proton")
++        if release["name"].endswith(("tar.gz", "tar.xz")) and release["name"].startswith(
 +            ("Proton-EM", "UMU-Proton", "GE-Proton")
          ):
              proton_asset = (release["name"], release["browser_download_url"])
@@ -131,7 +133,7 @@ index 1dca04e..ed3c6a6 100755
          err: str = (
              "Environment variable not set or is empty: PROTONPATH\n"
 -            f"Possible reason: GE-Proton or UMU-Proton not found in '{STEAM_COMPAT}'"
-+            f"Possible reason: EM-Proton, GE-Proton or UMU-Proton not found in '{STEAM_COMPAT}'"
++            f"Possible reason: Proton-EM, GE-Proton or UMU-Proton not found in '{STEAM_COMPAT}'"
              " or network error"
          )
          raise FileNotFoundError(err)
