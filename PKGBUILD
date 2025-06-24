@@ -2,14 +2,20 @@
 
 pkgname=umu-launcher
 pkgver=1.2.6
-pkgrel=3
+pkgrel=1
 pkgdesc="The Unified Launcher for Windows Games on Linux, to run Proton with fixes outside of Steam"
 arch=('x86_64')
 url="https://github.com/Open-Wine-Components/umu-launcher"
 license=('GPL-3.0-only')
-source=("git+https://github.com/Open-Wine-Components/umu-launcher.git")
+source=(
+    "git+https://github.com/Open-Wine-Components/umu-launcher.git"
+    "proton-em-umu.patch"
+)
 options=(!debug)
-sha256sums=('SKIP')
+sha256sums=(
+    SKIP
+    SKIP
+)
 depends=(
   python
   python-pyzstd
@@ -29,14 +35,20 @@ makedepends=(
   cargo
 )
 optdepends=(
-  "lib32-vulkan-driver: 32-bit support for dxvk"
-  "lib32-opengl-driver: 32-bit support for wined3d"
+  "lib32-vulkan-driver: 32-bit support for DXVK"
+  "lib32-opengl-driver: 32-bit support for WineD3D"
 )
+
+pkgver() {
+  cd "$srcdir"/umu-launcher
+  printf "%s" "$(git describe --long --tags | sed 's/\([^-]*-\)g/r\1/;s/-/./g')"
+}
 
 prepare() {
   cd "$srcdir"/umu-launcher
   export RUSTUP_TOOLCHAIN=stable
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+  patch -d $pkgname -p1 < proton-em-umu.patch # Proton-EM support
 }
 
 build() {
