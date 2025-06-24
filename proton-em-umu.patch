@@ -2,6 +2,15 @@ diff --git a/umu/umu_proton.py b/umu/umu_proton.py
 index edca37b..4cc8797 100644
 --- a/umu/umu_proton.py
 +++ b/umu/umu_proton.py
+@@ -3,7 +3,7 @@ import time
+ from concurrent.futures import ALL_COMPLETED, FIRST_EXCEPTION, ThreadPoolExecutor
+ from concurrent.futures import wait as futures_wait
+ from enum import Enum
+-from hashlib import sha512
++from hashlib import sha512, sha256
+ from http import HTTPStatus
+ from importlib.util import find_spec
+ from itertools import chain
 @@ -46,6 +46,7 @@ SessionCaches = tuple[Path, Path]
  class ProtonVersion(Enum):
      """Represent valid version keywords for Proton."""
@@ -50,7 +59,7 @@ index edca37b..4cc8797 100644
          ):
              proton_asset = (release["name"], release["browser_download_url"])
              asset_count += 1
-@@ -200,7 +205,7 @@ def _fetch_proton(
+@@ -200,16 +205,20 @@ def _fetch_proton(
      assets: tuple[tuple[str, str], tuple[str, str]],
      session_pools: SessionPools,
  ) -> dict[str, str]:
@@ -59,7 +68,22 @@ index edca37b..4cc8797 100644
      resp: BaseHTTPResponse
      tmpfs, cache = session_caches
      _, http_pool = session_pools
-@@ -356,7 +361,7 @@ def _get_latest(
+     proton_hash, proton_hash_url = assets[0]
+     tarball, tar_url = assets[1]
+-    proton: str = tarball.removesuffix(".tar.gz")
++    if tarball.endswith (".tar.gz"):
++        hashsum = sha512()
++    else: hashsum = sha256()
++    if tarball.endswith(".tar.xz"):
++        proton: str = tarball.removesuffix(".tar.xz")
++    else: proton: str = tarball.removesuffix("tar.gz")
+     ret: int = 0  # Exit code from zenity
+     digest: str = ""  # Digest of the Proton archive
+-    hashsum = sha512()
+ 
+     # Verify the scheme from Github for resources
+     if not tar_url.startswith("https:") or not proton_hash_url.startswith("https:"):
+@@ -356,7 +365,7 @@ def _get_latest(
  ) -> dict[str, str] | None:
      """Download the latest Proton for new installs.
  
@@ -68,7 +92,7 @@ index edca37b..4cc8797 100644
      Depending on the codename, the installation path for those builds will
      be different.
  
-@@ -371,7 +376,7 @@ def _get_latest(
+@@ -371,7 +380,7 @@ def _get_latest(
      tarball: str
      # Name of the Proton directory (e.g., GE-Proton9-7)
      proton: str
@@ -77,7 +101,7 @@ index edca37b..4cc8797 100644
      version: str = ProtonVersion.UMU.value
      lock: str = f"{UMU_LOCAL}/{FileLock.Compat.value}"
      latest_candidates: set[str]
-@@ -380,7 +385,10 @@ def _get_latest(
+@@ -380,7 +389,10 @@ def _get_latest(
          return None
  
      tarball = assets[1][0]
@@ -89,7 +113,7 @@ index edca37b..4cc8797 100644
      latest_candidates = {
          ProtonVersion.GELatest.value,
          ProtonVersion.UMULatest.value,
-@@ -396,7 +404,7 @@ def _get_latest(
+@@ -396,7 +408,7 @@ def _get_latest(
          env["PROTONPATH"] = os.environ["PROTONPATH"]
          return env
  
@@ -98,7 +122,7 @@ index edca37b..4cc8797 100644
      try:
          log.debug("Acquiring file lock '%s'...", lock)
          with unix_flock(lock):
-@@ -438,7 +446,7 @@ def _install_proton(
+@@ -438,7 +450,7 @@ def _install_proton(
      """Install a Proton directory to Steam's compatibilitytools.d.
  
      An installation is primarily composed of two steps: extract and move. A
@@ -107,7 +131,7 @@ index edca37b..4cc8797 100644
      directory then moved to compatibilitytools.d, which is expected to be in
      $HOME.
      """
-@@ -495,7 +503,9 @@ def _get_delta(
+@@ -495,7 +507,9 @@ def _get_delta(
  ) -> dict[str, str] | None:
      thread_pool, _ = session_pools
      version: str = (
@@ -118,7 +142,7 @@ index edca37b..4cc8797 100644
      )
      proton: Path = umu_compat.joinpath(version)
      lock: str = f"{UMU_LOCAL}/{FileLock.Compat.value}"
-@@ -578,7 +588,7 @@ def _get_delta(
+@@ -578,7 +592,7 @@ def _get_delta(
          # Apply the patch
          for content in cbor["contents"]:
              src: str = content["source"]
@@ -127,6 +151,7 @@ index edca37b..4cc8797 100644
                  patchers.append(_apply_delta(proton, content, thread_pool))
                  continue
              subdir: Path | None = next(umu_compat.joinpath(version).rglob(src), None)
+
 diff --git a/./umu-launcher-orig/umu/umu_run.py b/./umu-launcher/umu/umu_run.py
 index 1dca04e..ed3c6a6 100755
 --- a/umu/umu_run.py
