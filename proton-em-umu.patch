@@ -131,7 +131,28 @@ index edca37b..4cc8797 100644
      directory then moved to compatibilitytools.d, which is expected to be in
      $HOME.
      """
-@@ -495,7 +507,9 @@ def _get_delta(
+@@ -480,10 +492,16 @@ def _install_proton(
+             umu_compat / os.environ["PROTONPATH"],
+         )
+     else:
+-        log.info(
+-            "%s -> %s", cache.joinpath(tarball.removesuffix(".tar.gz")), steam_compat
+-        )
+-        move(cache.joinpath(tarball.removesuffix(".tar.gz")), steam_compat)
++            if tarball.endswith(".tar.gz"):
++                log.info(
++                "%s -> %s", cache.joinpath(tarball.removesuffix(".tar.gz")), steam_compat
++                 )
++                 move(cache.joinpath(tarball.removesuffix(".tar.gz")), steam_compat)
++            else:
++                log.info(
++                "%s -> %s", cache.joinpath(tarball.removesuffix(".tar.xz")), steam_compat
++                 )
++                 move(cache.joinpath(tarball.removesuffix(".tar.xz")), steam_compat)
+ 
+ 
+ def _get_delta(
+@@ -495,7 +513,9 @@ def _get_delta(
  ) -> dict[str, str] | None:
      thread_pool, _ = session_pools
      version: str = (
@@ -142,7 +163,7 @@ index edca37b..4cc8797 100644
      )
      proton: Path = umu_compat.joinpath(version)
      lock: str = f"{UMU_LOCAL}/{FileLock.Compat.value}"
-@@ -578,7 +592,7 @@ def _get_delta(
+@@ -578,7 +598,7 @@ def _get_delta(
          # Apply the patch
          for content in cbor["contents"]:
              src: str = content["source"]
