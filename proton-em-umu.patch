@@ -143,7 +143,7 @@ index edca37b..4cc8797 100644
 +                log.info(
 +                "%s -> %s", cache.joinpath(tarball.removesuffix(".tar.gz")), steam_compat
 +                 )
-+                 move(cache.joinpath(tarball.removesuffix(".tar.gz")), steam_compat)
++                move(cache.joinpath(tarball.removesuffix(".tar.gz")), steam_compat)
 +            else:
 +                log.info(
 +                "%s -> %s", cache.joinpath(tarball.removesuffix(".tar.xz")), steam_compat
@@ -204,7 +204,7 @@ index 1dca04e..ed3c6a6 100755
          # The launcher will change to the winetricks parent directory before
          # creating the subprocess
          exe: Path = Path(protonpath, "protonfixes", "winetricks").resolve(strict=True)
-@@ -683,7 +683,7 @@ def resolve_umu_version(runtimes: tuple[RuntimeVersion, ...]) -> RuntimeVersion
+@@ -684,7 +684,7 @@ def resolve_umu_version(runtimes: tuple[RuntimeVersion, ...]) -> RuntimeVersion
          return runtimes[0]
  
      # Default to latest runtime for codenames
