@@ -148,7 +148,7 @@ index edca37b..4cc8797 100644
 +                log.info(
 +                "%s -> %s", cache.joinpath(tarball.removesuffix(".tar.xz")), steam_compat
 +                 )
-+                 move(cache.joinpath(tarball.removesuffix(".tar.xz")), steam_compat)
++                move(cache.joinpath(tarball.removesuffix(".tar.xz")), steam_compat)
  
  
  def _get_delta(
