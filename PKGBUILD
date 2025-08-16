@@ -1,21 +1,15 @@
 # Maintainer: loathingkernel <loathingkernel _a_ gmail _d_ com>
 
-pkgname=umu-launcher
+pkgname=umu-launcher-git
 pkgver=1.2.6
 pkgrel=1
 pkgdesc="The Unified Launcher for Windows Games on Linux, to run Proton with fixes outside of Steam"
 arch=('x86_64')
 url="https://github.com/Open-Wine-Components/umu-launcher"
 license=('GPL-3.0-only')
-source=(
-    "git+https://github.com/Open-Wine-Components/umu-launcher.git"
-    "proton-em-umu.patch"
-)
+source=("git+https://github.com/Open-Wine-Components/umu-launcher.git")
 options=(!debug)
-sha256sums=(
-    SKIP
-    SKIP
-)
+sha256sums=(SKIP)
 depends=(
   python
   python-pyzstd
@@ -38,6 +32,7 @@ optdepends=(
   "lib32-vulkan-driver: 32-bit support for DXVK"
   "lib32-opengl-driver: 32-bit support for WineD3D"
 )
+provides=(umu-launcher)
 
 pkgver() {
   cd "$srcdir"/umu-launcher
