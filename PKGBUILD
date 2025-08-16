@@ -7,6 +7,8 @@ pkgdesc="The Unified Launcher for Windows Games on Linux, to run Proton with fix
 arch=('x86_64')
 url="https://github.com/Open-Wine-Components/umu-launcher"
 license=('GPL-3.0-only')
+provides=(umu-launcher)
+conflicts=(umu-launcher)
 source=("git+https://github.com/Open-Wine-Components/umu-launcher.git")
 options=(!debug)
 sha256sums=(SKIP)
@@ -32,7 +34,6 @@ optdepends=(
   "lib32-vulkan-driver: 32-bit support for DXVK"
   "lib32-opengl-driver: 32-bit support for WineD3D"
 )
-provides=(umu-launcher)
 
 pkgver() {
   cd "$srcdir"/umu-launcher
