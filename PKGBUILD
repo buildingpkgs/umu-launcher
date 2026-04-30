@@ -47,7 +47,7 @@ pkgver() {
 }
 
 prepare() {
-  patch -d $pkgname -p1 < proton-em-umu.patch # Proton-EM support
+  patch -d umu-launcher -p1 < proton-em-umu.patch # Proton-EM support
   cd "$srcdir"/umu-launcher
   export RUSTUP_TOOLCHAIN=stable
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
