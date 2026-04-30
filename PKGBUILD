@@ -9,7 +9,10 @@ url="https://github.com/Open-Wine-Components/umu-launcher"
 license=('GPL-3.0-only')
 provides=(umu-launcher)
 conflicts=(umu-launcher)
-source=("git+https://github.com/Open-Wine-Components/umu-launcher.git")
+source=(
+    "git+https://github.com/Open-Wine-Components/umu-launcher.git"
+    "proton-em-umu.patch"
+)
 options=(!debug)
 sha256sums=(SKIP)
 depends=(
