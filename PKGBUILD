@@ -14,7 +14,10 @@ source=(
     "proton-em-umu.patch"
 )
 options=(!debug)
-sha256sums=(SKIP)
+sha256sums=(
+   SKIP
+   SKIP
+)
 depends=(
   python
   python-pyzstd
